@@ -13,6 +13,10 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * A service that records and archives recorded data on all input midi devices. New devices are
+ * detected using a periodic check.
+ */
 public class MidiArchiverService extends Thread {
 
   private static final Logger logger = LoggerFactory.getLogger(MidiArchiverService.class);

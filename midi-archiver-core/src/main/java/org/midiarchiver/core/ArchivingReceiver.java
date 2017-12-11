@@ -11,7 +11,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * A {@link Receiver} that archives midi data.
+ * A {@link Receiver} that archives midi data. When a note is played on the device this receiver
+ * starts recording to a sequencer. If no notes are played for a set amount of time the recorded
+ * sequence will be written to the provided {@link SequenceWriter}. A new recording will start when
+ * the next note is played.
  */
 public class ArchivingReceiver implements Receiver {
 
@@ -49,6 +52,9 @@ public class ArchivingReceiver implements Receiver {
     this.stopRecordingTimer = Preconditions.checkNotNull(stopRecordingTimer);
   }
 
+  /**
+   * Handles a message sent from the {@link Transmitter} midi device.
+   */
   @Override
   public synchronized void send(MidiMessage message, long timeStamp) {
     if (message instanceof ShortMessage) {
@@ -71,6 +77,10 @@ public class ArchivingReceiver implements Receiver {
     }
   }
 
+  /**
+   * Closes and released devices. If a recording is in progress it will be stoped and the recorded
+   * data will be archived.
+   */
   @Override
   public synchronized void close() {
     stopRecording();

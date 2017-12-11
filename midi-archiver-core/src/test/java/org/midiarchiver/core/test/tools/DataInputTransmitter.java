@@ -8,7 +8,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 /**
- * Created by thorntonv on 12/10/17.
+ * A {@link Transmitter} that reads data from a data input stream and sends the messages from the
+ * stream to the {@link Receiver}.
  */
 public class DataInputTransmitter implements Transmitter {
 

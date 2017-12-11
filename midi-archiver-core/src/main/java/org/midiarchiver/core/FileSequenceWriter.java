@@ -25,7 +25,7 @@ public class FileSequenceWriter implements SequenceWriter {
   }
 
   /**
-   * Writes the given sequence to a file. The file path be in thefollowing pattern:
+   * Writes the given sequence to a file. The file path be in the following pattern:
    * yyyy/MM/dd/hh-mm-ss.mid
    */
   @Override
