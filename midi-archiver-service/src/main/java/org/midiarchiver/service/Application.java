@@ -1,22 +1,27 @@
 package org.midiarchiver.service;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import javax.sound.midi.MidiDevice.Info;
-import javax.sound.midi.MidiSystem;
-import org.midiarchiver.core.MidiRecorder;
+import org.midiarchiver.core.MidiArchiverService;
+import org.midiarchiver.service.spring.MidiArchiverServiceConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.event.ContextClosedEvent;
 
 @SpringBootApplication
-public class Application {
+@Import(MidiArchiverServiceConfig.class)
+public class Application implements ApplicationListener<ContextClosedEvent> {
+
+  @Autowired
+  private MidiArchiverService midiArchiverService;
 
   public static void main(String[] args) {
     SpringApplication.run(Application.class, args);
+  }
 
-    ExecutorService executorService = Executors.newCachedThreadPool();
-    for (Info midiDeviceInfo : MidiSystem.getMidiDeviceInfo()) {
-      executorService.submit(new MidiRecorderTask(midiDeviceInfo));
-    }
+  @Override
+  public void onApplicationEvent(ContextClosedEvent event) {
+    midiArchiverService.shutdown();
   }
 }
