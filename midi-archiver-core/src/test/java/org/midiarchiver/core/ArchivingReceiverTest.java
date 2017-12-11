@@ -1,28 +1,31 @@
 package org.midiarchiver.core;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import com.google.common.io.Resources;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
+import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiDevice;
+import javax.sound.midi.Sequence;
+import javax.sound.midi.ShortMessage;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.midiarchiver.core.test.tools.DataInputTransmitter;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.ShortMessage;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
 
 /**
  * Unit test for {@link ArchivingReceiver}.
@@ -31,6 +34,8 @@ import static org.mockito.Mockito.*;
 public class ArchivingReceiverTest {
 
   private static final long TEST_STOP_RECORDING_DELAY_MILLIS = 5 * 1000;
+  @Mock
+  private MidiDevice.Info deviceInfo;
   @Mock
   private SequenceWriter mockSequenceWriter;
   @Mock
@@ -41,7 +46,7 @@ public class ArchivingReceiverTest {
   @Before
   public void setUp() throws Exception {
     archivingReceiver =
-        new ArchivingReceiver("_testDevice", mockSequenceWriter, TEST_STOP_RECORDING_DELAY_MILLIS, mockTimer);
+        new ArchivingReceiver(deviceInfo, mockSequenceWriter, TEST_STOP_RECORDING_DELAY_MILLIS, mockTimer);
   }
 
   @Test

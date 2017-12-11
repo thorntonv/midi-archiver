@@ -29,7 +29,7 @@ public class ArchivingReceiver implements Receiver {
     }
   }
 
-  private final String deviceName;
+  private final MidiDevice.Info deviceInfo;
   private final long stopRecordingDelayMillis;
   private final SequenceWriter sequenceWriter;
   private final Timer stopRecordingTimer;
@@ -38,15 +38,15 @@ public class ArchivingReceiver implements Receiver {
   private Receiver receiver;
   private TimerTask stopRecordingTimerTask;
 
-  public ArchivingReceiver(final String deviceName, final SequenceWriter sequenceWriter,
+  public ArchivingReceiver(final MidiDevice.Info deviceInfo, final SequenceWriter sequenceWriter,
                            final long stopRecordingDelayMillis) {
-    this(deviceName, sequenceWriter, stopRecordingDelayMillis, new Timer());
+    this(deviceInfo, sequenceWriter, stopRecordingDelayMillis, new Timer());
   }
 
   @VisibleForTesting
-  ArchivingReceiver(final String deviceName, final SequenceWriter sequenceWriter,
+  ArchivingReceiver(final MidiDevice.Info deviceInfo, final SequenceWriter sequenceWriter,
                     final long stopRecordingDelayMillis, final Timer stopRecordingTimer) {
-    this.deviceName = Preconditions.checkNotNull(deviceName);
+    this.deviceInfo = Preconditions.checkNotNull(deviceInfo);
     this.sequenceWriter = Preconditions.checkNotNull(sequenceWriter);
     this.stopRecordingDelayMillis = stopRecordingDelayMillis;
     this.stopRecordingTimer = Preconditions.checkNotNull(stopRecordingTimer);
@@ -112,15 +112,15 @@ public class ArchivingReceiver implements Receiver {
       sequencer = prepareAndOpenNewSequencer();
       receiver = sequencer.getReceiver();
       sequencer.startRecording();
-      logger.info(deviceName + " - Recording started");
+      logger.info(getDeviceName() + " - Recording started");
     } catch (MidiUnavailableException | InvalidMidiDataException e) {
-      logger.warn("An error occurred while starting recording on device " + deviceName, e);
+      logger.warn("An error occurred while starting recording on device " + getDeviceName(), e);
     }
   }
 
   private synchronized void stopRecording() {
     try {
-      logger.info(deviceName + " - Recording stopped");
+      logger.info(getDeviceName() + " - Recording stopped");
       if (receiver != null) {
         receiver.close();
         receiver = null;
@@ -134,7 +134,11 @@ public class ArchivingReceiver implements Receiver {
         sequencer = null;
       }
     } catch (IOException e) {
-      logger.warn("An error occurred while stopping recording on device " + deviceName, e);
+      logger.warn("An error occurred while stopping recording on device " + getDeviceName(), e);
     }
+  }
+
+  private String getDeviceName() {
+    return deviceInfo.getVendor() + " " + deviceInfo.getName();
   }
 }
