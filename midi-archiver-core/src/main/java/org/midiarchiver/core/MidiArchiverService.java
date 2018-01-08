@@ -60,7 +60,7 @@ public class MidiArchiverService extends Thread {
     logger.info("Checking for new devices");
     Map<String, Pair<MidiDevice, ArchivingReceiver>> newRecordableDevices = new HashMap<>();
     for(MidiDevice midiDevice : getRecordableDevices(midiSystemService)) {
-      String deviceId = getDeviceId(midiDevice.getDeviceInfo());
+      String deviceId = midiSystemService.getDeviceId(midiDevice.getDeviceInfo());
       Pair<MidiDevice, ArchivingReceiver> recordableDevice = activeDevices.get(deviceId);
 
       if (recordableDevice == null) {
@@ -73,8 +73,8 @@ public class MidiArchiverService extends Thread {
       }
       if(recordableDevice != null) {
         newRecordableDevices.put(deviceId, recordableDevice);
+        activeDevices.remove(deviceId);
       }
-      activeDevices.remove(deviceId);
     }
 
     // Close devices that are no longer available.
@@ -88,14 +88,9 @@ public class MidiArchiverService extends Thread {
     shutdown.set(true);
   }
 
-  private String getDeviceId(Info info) {
-    return info.getVendor() + "_" + info.getName() + "_" + info.getVersion();
-  }
-
   private static List<MidiDevice> getRecordableDevices(final MidiSystemService midiSystemService) {
     List<MidiDevice> recordableDevices = new ArrayList<>();
     for (Info midiDeviceInfo : midiSystemService.getMidiDeviceInfo()) {
-
       MidiDevice midiDevice = null;
       try {
         midiDevice = midiSystemService.getMidiDevice(midiDeviceInfo);

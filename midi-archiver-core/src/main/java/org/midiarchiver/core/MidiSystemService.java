@@ -1,5 +1,6 @@
 package org.midiarchiver.core;
 
+import java.util.UUID;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
@@ -15,5 +16,10 @@ public class MidiSystemService {
 
   public MidiDevice getMidiDevice(MidiDevice.Info deviceInfo) throws MidiUnavailableException {
     return MidiSystem.getMidiDevice(deviceInfo);
+  }
+
+  public String getDeviceId(final MidiDevice.Info deviceInfo) {
+    String deviceIdString = deviceInfo.getVendor() + deviceInfo.getName() + deviceInfo.getVersion();
+    return UUID.nameUUIDFromBytes(deviceIdString.getBytes()).toString();
   }
 }

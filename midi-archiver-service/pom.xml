@@ -6,7 +6,7 @@
 
     <groupId>org.midiarchiver</groupId>
     <artifactId>midi-archiver-service</artifactId>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>midi-archiver-service</name>
     <description>MIDI Archiver Service</description>

@@ -19,17 +19,17 @@ public class MidiArchiverServiceConfig {
   @Bean
   public MidiArchiverService midiArchiverService(final MidiSystemService midiSystemService) {
     MidiArchiverService midiArchiverService = new MidiArchiverService(
-        newDeviceCheckIntervalMillis, midiSystemService, archivingReceiverFactory());
+        newDeviceCheckIntervalMillis, midiSystemService, archivingReceiverFactory(midiSystemService));
     midiArchiverService.start();
     return midiArchiverService;
   }
 
   @Bean
-  public Function<MidiDevice.Info, ArchivingReceiver> archivingReceiverFactory() {
+  public Function<MidiDevice.Info, ArchivingReceiver> archivingReceiverFactory(
+      final MidiSystemService midiSystemService) {
     return (MidiDevice.Info deviceInfo) -> {
-      SequenceWriter sequenceWriter = new FileSequenceWriter(
-          dataDirectoryPath + File.separator +
-          deviceInfo.getVendor() + File.separator + deviceInfo.getName());
+      SequenceWriter sequenceWriter = new FileSequenceWriter(dataDirectoryPath + File.separator +
+              midiSystemService.getDeviceId(deviceInfo));
       return new ArchivingReceiver(deviceInfo, sequenceWriter, stopRecordingDelayMillis);
     };
   }
