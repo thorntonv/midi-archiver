@@ -1,5 +1,6 @@
 package org.midiarchiver.core;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
@@ -89,6 +90,7 @@ public class ArchivingReceiverTest {
       Sequence sequence = sequenceCaptor.getValue();
       assertTrue(sequence.getTracks().length > 0);
       assertTrue(sequence.getTickLength() > 0);
+      assertEquals(0, sequence.getTracks()[0].get(0).getTick());
     }
   }
 

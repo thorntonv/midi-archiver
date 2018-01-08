@@ -36,6 +36,7 @@ public class ArchivingReceiver implements Receiver {
 
   private Sequencer sequencer;
   private Receiver receiver;
+  private Long recordingStartTimestamp;
   private TimerTask stopRecordingTimerTask;
 
   public ArchivingReceiver(final MidiDevice.Info deviceInfo, final SequenceWriter sequenceWriter,
@@ -63,6 +64,7 @@ public class ArchivingReceiver implements Receiver {
         case ShortMessage.NOTE_ON:
           if (sequencer == null || receiver == null || !sequencer.isRecording()) {
             startRecording();
+            recordingStartTimestamp = timeStamp;
           }
           extendStopRecordingTimer(NOTE_ON_STOP_RECORDING_DELAY_MILLIS);
           break;
@@ -73,7 +75,7 @@ public class ArchivingReceiver implements Receiver {
     }
 
     if (sequencer != null && sequencer.isRecording()) {
-      receiver.send(message, timeStamp);
+      receiver.send(message, timeStamp - recordingStartTimestamp);
     }
   }
 
@@ -99,7 +101,7 @@ public class ArchivingReceiver implements Receiver {
     Sequencer sequencer = MidiSystem.getSequencer();
     sequencer.open();
 
-    Sequence seq = new Sequence(Sequence.SMPTE_24, 24);
+    Sequence seq = new Sequence(Sequence.PPQ, 480);
     Track currentTrack = seq.createTrack();
     sequencer.setSequence(seq);
     sequencer.setTickPosition(0);
@@ -133,6 +135,7 @@ public class ArchivingReceiver implements Receiver {
         sequencer.close();
         sequencer = null;
       }
+      recordingStartTimestamp = null;
     } catch (IOException e) {
       logger.warn("An error occurred while stopping recording on device " + getDeviceName(), e);
     }

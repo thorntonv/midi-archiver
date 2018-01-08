@@ -38,7 +38,9 @@ public class FileSequenceWriter implements SequenceWriter {
   private String getMidiOutputFileName() {
     File targetDirectory = new File(outputDirectoryPath + File.separator +
         new SimpleDateFormat("yyyy/MM/dd").format(new Date()));
-    targetDirectory.mkdirs();
+    if (!targetDirectory.mkdirs()) {
+      logger.error("Unable to create directory " + targetDirectory);
+    }
     return targetDirectory.getAbsolutePath() + File.separator +
         new SimpleDateFormat("hh-mm-ss").format(new Date()) + ".mid";
   }

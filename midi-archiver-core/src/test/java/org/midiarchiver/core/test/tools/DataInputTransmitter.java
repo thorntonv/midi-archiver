@@ -1,11 +1,10 @@
 package org.midiarchiver.core.test.tools;
 
-import javax.sound.midi.MidiMessage;
+import java.io.DataInputStream;
+import java.io.IOException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Transmitter;
-import java.io.DataInputStream;
-import java.io.IOException;
 
 /**
  * A {@link Transmitter} that reads data from a data input stream and sends the messages from the
