@@ -35,7 +35,6 @@ public class DataInputTransmitter implements Transmitter {
   public void setReceiver(Receiver receiver) {
     this.receiver = receiver;
 
-    Long currentTimeStamp = null;
     try {
       int messageCount = in.readInt();
       for (int cnt = 1; cnt <= messageCount; cnt++) {
@@ -44,15 +43,6 @@ public class DataInputTransmitter implements Transmitter {
         final byte[] messageData = new byte[messageDataLen];
         in.read(messageData);
         final long timeStamp = in.readLong();
-        if(currentTimeStamp != null) {
-          long delta = timeStamp - currentTimeStamp;
-          try {
-            Thread.sleep(delta / 1000);
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
-        }
-        currentTimeStamp = timeStamp;
         receiver.send(new DataOutputMidiMessage(messageData), timeStamp);
       }
     } catch (IOException ex) {

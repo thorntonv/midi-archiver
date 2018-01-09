@@ -58,6 +58,9 @@ public class ArchivingReceiver implements Receiver {
    */
   @Override
   public synchronized void send(MidiMessage message, long timeStamp) {
+    if(timeStamp < 0) {
+      timeStamp = System.nanoTime() / 1000;
+    }
     if (message instanceof ShortMessage) {
       ShortMessage shortMessage = (ShortMessage) message;
       switch (shortMessage.getCommand()) {
