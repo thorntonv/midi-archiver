@@ -20,40 +20,19 @@ import org.slf4j.LoggerFactory;
  * A service that records and archives recorded data on all input midi devices. New devices are
  * detected using a periodic check.
  */
-public class MidiArchiverService extends Thread {
+public class MidiArchiverService implements AutoCloseable {
 
   private static final Logger logger = LoggerFactory.getLogger(MidiArchiverService.class);
 
-  private final long newDeviceCheckIntervalMillis;
   private final MidiSystemService midiSystemService;
   private final Function<MidiDevice.Info, ArchivingReceiver> archivingReceiverFactory;
-  private final AtomicBoolean shutdown = new AtomicBoolean(false);
   private final Map<String, Pair<MidiDevice, ArchivingReceiver>> activeDevices = new HashMap<>();
 
-  public MidiArchiverService(final long newDeviceCheckIntervalMillis,
+  public MidiArchiverService(
       final MidiSystemService midiSystemService,
       final Function<MidiDevice.Info, ArchivingReceiver> archivingReceiverFactory) {
-    this.newDeviceCheckIntervalMillis = newDeviceCheckIntervalMillis;
     this.midiSystemService = Preconditions.checkNotNull(midiSystemService);
     this.archivingReceiverFactory = Preconditions.checkNotNull(archivingReceiverFactory);
-  }
-
-  @Override
-  public void run() {
-    logger.info(MidiArchiverService.class.getSimpleName() + " started");
-
-    try {
-      while (!shutdown.get()) {
-        checkForNewDevices();
-        Thread.sleep(newDeviceCheckIntervalMillis);
-      }
-    } catch (InterruptedException e) {
-      logger.warn(getClass().getSimpleName() + " was interrupted", e);
-    }
-
-    closeAll(activeDevices.values());
-
-    logger.info(getClass().getSimpleName() + " finished");
   }
 
   public void checkForNewDevices() {
@@ -84,8 +63,10 @@ public class MidiArchiverService extends Thread {
     activeDevices.putAll(newRecordableDevices);
   }
 
-  public void shutdown() {
-    shutdown.set(true);
+  @Override
+  public void close() throws Exception {
+    logger.info("Closing " + getClass().getSimpleName());
+    closeAll(activeDevices.values());
   }
 
   private static List<MidiDevice> getRecordableDevices(final MidiSystemService midiSystemService) {

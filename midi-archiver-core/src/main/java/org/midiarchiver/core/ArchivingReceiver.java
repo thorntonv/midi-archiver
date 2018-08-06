@@ -160,7 +160,9 @@ public class ArchivingReceiver implements Receiver {
           sequencer.stopRecording();
           sequenceWriter.write(sequencer.getSequence());
         }
-        sequencer.close();
+        if(sequencer.isOpen()) {
+          sequencer.close();
+        }
         sequencer = prepareAndOpenNewSequencer();
       }
       recordingStartTimestamp = null;

@@ -13,15 +13,11 @@ import org.springframework.context.annotation.Bean;
 public class MidiArchiverServiceConfig {
 
   private String dataDirectoryPath = "data";
-  private int newDeviceCheckIntervalMillis = 20 * 1000;
   private int stopRecordingDelayMillis = 5 * 1000;
 
   @Bean
   public MidiArchiverService midiArchiverService(final MidiSystemService midiSystemService) {
-    MidiArchiverService midiArchiverService = new MidiArchiverService(
-        newDeviceCheckIntervalMillis, midiSystemService, archivingReceiverFactory(midiSystemService));
-    midiArchiverService.start();
-    return midiArchiverService;
+    return new MidiArchiverService(midiSystemService, archivingReceiverFactory(midiSystemService));
   }
 
   @Bean

@@ -4,14 +4,19 @@ import org.midiarchiver.core.MidiArchiverService;
 import org.midiarchiver.service.spring.MidiArchiverServiceConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 @SpringBootApplication
 @Import(MidiArchiverServiceConfig.class)
-public class Application implements ApplicationListener<ContextClosedEvent> {
+@EnableAutoConfiguration
+@EnableAsync
+@EnableScheduling
+public class Application {
 
   @Autowired
   private MidiArchiverService midiArchiverService;
@@ -20,8 +25,8 @@ public class Application implements ApplicationListener<ContextClosedEvent> {
     SpringApplication.run(Application.class, args);
   }
 
-  @Override
-  public void onApplicationEvent(ContextClosedEvent event) {
-    midiArchiverService.shutdown();
+  @Scheduled(fixedDelay = 20 * 1000)
+  public void checkForNewDevices() {
+    midiArchiverService.checkForNewDevices();
   }
 }

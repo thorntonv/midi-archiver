@@ -11,6 +11,7 @@ import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiDevice.Info;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Transmitter;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +24,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class MidiArchiverServiceTest {
 
-  private static final int TEST_NEW_DEVICE_CHECK_INTERVAL_MILLIS = 5 * 1000;
   @Mock
   private MidiDevice mockDevice1;
   private MidiDevice.Info mockDeviceInfo1;
@@ -65,7 +65,12 @@ public class MidiArchiverServiceTest {
     when(mockArchivingReceiverFactory.apply(mockDeviceInfo2)).thenReturn(mockArchivingReceiver2);
 
     this.midiArchiverService = new MidiArchiverService(
-        TEST_NEW_DEVICE_CHECK_INTERVAL_MILLIS, mockMidiSystemService, mockArchivingReceiverFactory);
+        mockMidiSystemService, mockArchivingReceiverFactory);
+  }
+
+  @After
+  public void cleanUp() throws Exception {
+    midiArchiverService.close();
   }
 
   @Test
@@ -125,19 +130,6 @@ public class MidiArchiverServiceTest {
 
     verify(mockArchivingReceiverFactory, never()).apply(mockDeviceInfo1);
     verify(mockArchivingReceiverFactory, never()).apply(mockDeviceInfo2);
-  }
-
-  @Test
-  public void testShutdown() throws MidiUnavailableException {
-    midiArchiverService.checkForNewDevices();
-
-    verifyRecordingStartedOnDevice(
-        mockDevice1, mockDeviceInfo1, mockArchivingReceiver1, mockTransmitter1);
-
-    midiArchiverService.shutdown();
-    midiArchiverService.run();
-
-    verifyDeviceClosed(mockDevice1, mockArchivingReceiver1);
   }
 
   private void verifyRecordingStartedOnDevice(MidiDevice mockDevice, MidiDevice.Info mockDeviceInfo,
